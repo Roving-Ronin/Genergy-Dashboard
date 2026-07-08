@@ -2,6 +2,32 @@
 
 All notable changes to the Genergy Dashboard are documented here.
 
+## [2.23.0] - 2026-07-08
+
+Stable release finalizing the interactive dashboard line (`2.23.0-pre.1`), with new EV, Sankey, event-card, and Energy Manager features plus a round of community-reported fixes.
+
+### Added
+- **Two AC EV chargers** — New **Number of EV Chargers** option (Features → Optional Equipment). Set it to 2 to add a second charger (EV 2) with its own entity config (charger power/state, vehicle SoC, range); both chargers then appear in a new **EV Chargers panel** showing each vehicle's Power · SoC · Range · State. EV 1 keeps its house-card garage node. Fully backward compatible — existing single-EV setups are unchanged.
+- **Interactive Sankey stream modals** — Clicking any node in the energy-flow Sankey (Solar, Home, Battery, Grid, EV, Heat Pump) opens a detailed modal with the daily total, live power, and a **flow breakdown**: where that stream's energy went (sources) or came from (destinations), with per-connection kWh and %. Replaces the old static stat-chip row beneath the Sankey.
+- **HAEO & Energy Manager Event Cards V2** — Native rebuilt event cards (Future Decisions + Past Events tabs, live status bar with SoC / prices / grid timing), replacing the previous Jinja2 `html-template-card` approach.
+- **Energy Manager (Node-RED) EMS provider** — Selectable Energy Manager provider with auto-filled decision and buy/sell price entities.
+- **Configurable Solar / Home / Grid labels** — Rename the house-card node labels from Settings → Display.
+- **Daily cost / revenue without an EMS** — Import-cost / export-revenue entity config that falls back to the Home Assistant Energy Dashboard sensors, so non-EMHASS users still get a daily € figure.
+- **Outdoor heat-pump house image** — New side-mounted exterior heat-pump asset replaces the oversized generic image.
+
+### Fixed
+- **"HTML Template Card" false-positive notification** — Removed the stale `html-template-card` entry from the integration's HACS-prerequisite check. The card is no longer used (the native HAEO/EM event cards replaced it), so the missing-card persistent notification / repair issue no longer appears.
+- **Chart date & range** — "Today" now anchors to local midnight, with correct 24 h-rolling and 7-day options, and the chart-range setting is actually applied.
+- **Chart auto-refresh** — Default changed 60 s → 5 min to preserve chart zoom state longer.
+- **Battery flow colors** — Default is now charge = green / discharge = red (previously reversed), with a toggle to swap.
+- **Grid power vs energy** — Clarified the W-vs-kWh entity expectations in Settings.
+- **EV SoC on the house-card node** — The configured EV SoC entity now surfaces on the EV node.
+- **Profile save** — Fixed the profile name being lost when saving a settings profile.
+- **Sankey false battery export** — Removed spurious battery-charge/export detection when the inverter reports a residual value with the battery disabled.
+
+### Changed
+- Removed the static Sankey stat-chip row in favor of the interactive per-node detail modals.
+
 ## [2.23.0-pre.1] - 2026-05-08
 
 > **Pre-release / work in progress:** Please do **not** open bug reports for the new pre-release functions in this section yet. They are intentionally being published early for validation and may change before the stable release.

@@ -80,8 +80,8 @@ const DEFAULT_CONFIG = {
   },
   colors: {
     solar: "#F0D850",
-    battery_charge: "#e74c3c",
-    battery_discharge: "#2ecc71",
+    battery_charge: "#2ecc71",
+    battery_discharge: "#e74c3c",
     grid_import: "#e74c3c",
     grid_export: "#2ecc71",
     home: "#3498db",
@@ -130,7 +130,7 @@ const PATHS = {
   // 6-point polyline tracing house architecture
   home:       "M 535 570 L 535 330 L 640 360 L 840 420 L 990 200 L 750 140",
   // Battery: vertical line below SigenStor
-  battery:    "M 350 760 L 350 870",
+  battery:    "M 490 570 L 492 785",
   // Grid: from wall junction through meter to ground
   grid:       "M 600 645 L 740 695 L 790 695 L 855 680 L 855 830",
   // EV/AC charger: charger wall → across garage → around car → to SigenStor
@@ -334,8 +334,9 @@ class SigenergyHouseCard extends LitElement {
     return 0;
   }
 
-  get _isCharging() { return this._batteryPower > 0; }
-  get _isDischarging() { return this._batteryPower < 0; }
+  get _batteryDeadbandW() { return parseFloat(this._config.battery_deadband_w) || 0; }
+  get _isCharging() { return this._batteryPower > this._batteryDeadbandW; }
+  get _isDischarging() { return this._batteryPower < -this._batteryDeadbandW; }
 
   get _batteryCapacityKwh() {
     // Manual capacity override takes precedence
@@ -575,7 +576,12 @@ class SigenergyHouseCard extends LitElement {
   get _sigenstorImage() { return `${this._config.image_path}/sigenstor_home.png`; }
   get _ammeterImage() { return `${this._config.image_path}/ammeter_home.png`; }
   get _acChargerImage() { return `${this._config.image_path}/ac_charger_bg.png`; }
-  get _heatPumpImage() { return `${this._config.image_path}/smart_load/heat_pump_mid.png`; }
+  get _heatPumpImage() {
+    const style = this._config.hp_image_style || 'outdoor';
+    if (style === 'split_ac') return `${this._config.image_path}/smart_load/air_conditioner_big.png`;
+    if (style === 'original') return `${this._config.image_path}/smart_load/heat_pump_mid.png`;
+    return `${this._config.image_path}/heatpump.png`; // outdoor (default)
+  }
 
   // ── Render: SVG static cable backbones ───────────────────────────────────
   _renderStaticPaths() {
@@ -652,7 +658,7 @@ class SigenergyHouseCard extends LitElement {
       ${this._renderComet(this._getEditPath('home'), c.home, this._loadPower > 5, false, 2.0)}
       ${this._renderComet(this._getEditPath('battery'),
           (this._config.swap_battery_colors ? (this._isCharging ? c.battery_discharge : c.battery_charge) : (this._isCharging ? c.battery_charge : c.battery_discharge)),
-          Math.abs(this._batteryPower) > 5,
+          Math.abs(this._batteryPower) > Math.max(5, this._batteryDeadbandW),
           this._isDischarging, 1.5)}
       ${this._config.features.grid ? this._renderComet(this._getEditPath('grid'),
           this._isImporting ? c.grid_import : c.grid_export,
@@ -1216,8 +1222,8 @@ class SigenergyHouseCard extends LitElement {
     const right = pos.right ?? '9%';
     const width = pos.width ?? '10%';
     const p = pos.perspective ?? 600;
-    const ry = pos.rotateY ?? -30;
-    const rx = pos.rotateX ?? 5;
+    const ry = pos.rotateY ?? -42;
+    const rx = pos.rotateX ?? 10;
     const rz = pos.rotateZ ?? -1;
     return `top:${top};right:${right};width:${width};transform:perspective(${p}px) rotateY(${ry}deg) rotateX(${rx}deg) rotateZ(${rz}deg);transform-origin:bottom left;`;
   }
@@ -1294,6 +1300,12 @@ class SigenergyHouseCard extends LitElement {
       ? this._config.battery_label
       : key === "heatpump" && this._config.heat_pump_label
       ? this._config.heat_pump_label
+      : key === "solar" && this._config.solar_label
+      ? this._config.solar_label
+      : key === "home" && this._config.home_label
+      ? this._config.home_label
+      : key === "grid" && this._config.grid_label
+      ? this._config.grid_label
       : def.label;
     let statusLine = "";
     let runtimeLine = "";
@@ -1425,7 +1437,7 @@ class SigenergyHouseCard extends LitElement {
           <img class="layer-img" src="${this._sigenstorImage}" />
           <img class="layer-img" src="${this._ammeterImage}" />
           ${this._showEvCharger ? html`<img class="layer-img" src="${this._acChargerImage}" />` : ''}
-          ${this._config.features.heat_pump ? html`<img
+          ${this._config.features.heat_pump && (this._config.hp_image_style || 'outdoor') !== 'hidden' ? html`<img
             class="heat-pump-img${this._isAssetEditMode ? ' asset-editing' : ''}"
             src="${this._heatPumpImage}"
             style="${this._getHpInlineStyle()}"

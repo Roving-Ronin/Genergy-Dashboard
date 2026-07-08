@@ -5,15 +5,9 @@
 
 <a href="https://my.home-assistant.io/redirect/hacs_repository/?owner=SpengeSec&repository=Genergy-Dashboard&category=integration" target="_blank" rel="noopener"><img src="https://my.home-assistant.io/badges/hacs_repository.svg" alt="Open your Home Assistant instance and open a repository inside the Home Assistant Community Store." /></a>
 
-> **⚠️ Pre-release work in progress**
->
-> The `v2.23.0-pre.1` release is a **pre-release** for testing the new interactive dashboard functions. For now, please do **not** open bug reports about the pre-release-only functions listed below; they are still being refined and may change before the stable release.
->
-> Stable-release feedback and reproducible issues outside these pre-release functions remain welcome.
-
 A fully configurable Home Assistant Lovelace dashboard for monitoring solar, battery, and grid energy systems. Features animated power flow visualization, real-time energy charts with EMHASS, HAEO, and Energy Manager forecast overlays, battery pack monitoring, and a 4-tab settings UI for complete customization — no YAML editing required.
 
-> **Pre-release highlights (`v2.23.0-pre.1`)**: interactive house-card detail modals, smart-load modal controls, forecast modal actions, draggable house-card label positions, visual click-zone editing, a smaller heat-pump house-card image, battery-stack details inside the battery modal, and safer ApexCharts generation that skips unavailable/missing entities.
+> **New in `v2.23.0`**: **two AC EV chargers** with a per-vehicle Power/SoC/Range/State panel, **interactive Sankey stream modals** (click any energy-flow node for a where-it-went / where-it-came-from breakdown), native **HAEO & Energy Manager event cards**, an **Energy Manager (Node-RED)** EMS provider, configurable Solar/Home/Grid labels, daily cost/revenue without an EMS, interactive house-card detail modals, smart-load modal controls, draggable label positions, and a fix for the false-positive "HTML Template Card missing" notification.
 
 > **Inverter-agnostic**: Works with **any** solar/battery inverter (Deye, SunSynk, Sigenergy, Huawei, Fronius, SolarEdge, Enphase, etc.) — just map your entity IDs in the Settings tab.
 
@@ -593,6 +587,7 @@ The house card composites multiple PNG layers:
 |---|---|
 | **Dashboard not in sidebar** | Go to Settings → Devices & Services, find Genergy Dashboard, check it's loaded. Try a hard refresh (Ctrl+Shift+R) |
 | **Cards not appearing** | Clear browser cache (Ctrl+Shift+Delete), hard-refresh (Ctrl+Shift+R) |
+| **Configuration error (after update on house/battery card sections** | Usually this is a cache issue. Clear browser cache (Ctrl+Shift+Delete), hard-refresh (Ctrl+Shift+R) |
 | **"Custom element doesn't exist: sigenergy-settings-card" (or sigenergy-house-card)** | This is auto-recovered by the built-in watchdog. **1)** Try a hard refresh (Ctrl+Shift+R / Cmd+Shift+R). **2)** If it persists, restart Home Assistant — the integration registers JS resources on startup. **3)** Check Settings → Devices & Services and confirm Genergy Dashboard is loaded without errors. |
 | **"Custom element doesn't exist: layout-card" (or apexcharts/mushroom/etc.)** | The integration will detect and notify you about missing cards automatically. Open the Settings tab to see the prerequisite banner with direct install links. Or install the required HACS dependencies manually (see [Prerequisites](#prerequisites)) and restart HA |
 | **Entity not found (red ✗ badge)** | Check entity ID in Developer Tools → States. Entity IDs are case-sensitive |
